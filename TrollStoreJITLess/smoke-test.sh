@@ -2,6 +2,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 dependencies="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/lc-trollstore-dependencies"
+mkdir -p "$dependencies"
+if [ ! -d "$dependencies/TrollStore/.git" ]; then
+    git clone --no-checkout https://github.com/opa334/TrollStore.git "$dependencies/TrollStore"
+fi
+git -C "$dependencies/TrollStore" checkout --detach 88424f683b2a08f34a3f88985f790f97d84ce1df
+git -C "$dependencies/TrollStore" submodule update --init ChOma
 source_dir="$dependencies/TrollStore/Exploits/fastPathSign/src"
 choma="$dependencies/TrollStore/ChOma/src"
 work="$dependencies/smoke"

@@ -15,6 +15,8 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '26.2'
+      - name: Exercise ZSign and CoreTrust on iOS Mach-O fixtures
+        run: bash TrollStoreJITLess/smoke-test.sh
       - name: Archive
         run: |
           set -o pipefail
@@ -26,8 +28,6 @@ jobs:
         run: |
           python3 TrollStoreJITLess/package.py "$RUNNER_TEMP/LiveContainer.xcarchive/Products/Applications/LiveContainer.app"
           python3 TrollStoreJITLess/verify-package.py Nextcloud-LiveContainer-TrollStore.tipa
-      - name: Exercise ZSign and CoreTrust on iOS Mach-O fixtures
-        run: bash TrollStoreJITLess/smoke-test.sh
       - uses: actions/upload-artifact@v4
         with:
           name: Nextcloud-LiveContainer-TrollStore-experimental
