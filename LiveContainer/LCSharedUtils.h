@@ -5,6 +5,9 @@
 + (NSString *)appGroupID;
 + (NSURL*) appGroupPath;
 + (NSString *)certificatePassword;
++ (BOOL)isTrollStoreJITLessBuild;
++ (BOOL)isTrollStoreJITLess;
++ (BOOL)canLaunchWithoutJIT;
 + (BOOL)launchToGuestAppWithClassicMode:(NSUInteger)classicMode;
 + (BOOL)launchToGuestAppWithURL:(NSURL *)url;
 + (void)setWebPageUrlForNextLaunch:(NSString*)urlString;

@@ -82,7 +82,14 @@ struct LCSettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                if sharedModel.multiLCStatus != 2 {
+                if LCSharedUtils.isTrollStoreJITLessBuild() {
+                    Section {
+                        Label(LCSharedUtils.isTrollStoreJITLess() ? "TrollStore: ohne JIT" : "Installation über TrollStore erforderlich",
+                              systemImage: LCSharedUtils.isTrollStoreJITLess() ? "checkmark.circle" : "exclamationmark.triangle")
+                        Text("Experimentelle Version. Apps werden auf dem Gerät signiert. Ein Zertifikat aus SideStore oder AltStore ist dafür nicht erforderlich. Apps, die selbst JIT benötigen, werden nicht unterstützt.")
+                    }
+                }
+                if sharedModel.multiLCStatus != 2 && !LCSharedUtils.isTrollStoreJITLessBuild() {
                     Section{
                         if !certificateDataFound {
                             Button {

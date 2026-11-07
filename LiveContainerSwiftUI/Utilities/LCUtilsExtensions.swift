@@ -11,7 +11,7 @@ extension LCUtils {
     public static let appGroupUserDefault = UserDefaults.init(suiteName: LCSharedUtils.appGroupID()) ?? UserDefaults.standard
     
     public static func signTweaks(tweakFolderUrl: URL, force : Bool = false, progressHandler : ((Progress) -> Void)? = nil) async throws {
-        guard LCSharedUtils.certificatePassword() != nil else {
+        guard LCSharedUtils.canLaunchWithoutJIT() else {
             return
         }
         let fm = FileManager.default
@@ -208,6 +208,10 @@ extension LCUtils {
     }
     
     public static func askForJIT(withScript script: String? = nil, appName: String? = nil, classicMode: UInt = 0, onServerMessage: ((String) -> Void)? = nil) async -> Bool {
+        if LCSharedUtils.isTrollStoreJITLessBuild() {
+            onServerMessage?("This build starts signed apps without JIT. Apps requiring JIT are unsupported.")
+            return false
+        }
         // if LiveContainer is installed by TrollStore
         let tsPath = "\(Bundle.main.bundlePath)/../_TrollStore"
         if (access((tsPath as NSString).utf8String, 0) == 0) {

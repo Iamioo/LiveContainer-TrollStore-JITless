@@ -214,6 +214,18 @@ class LCAppModel: ObservableObject, Hashable {
         if isAppRunning {
             return
         }
+
+        if LCSharedUtils.isTrollStoreJITLessBuild() {
+            guard LCSharedUtils.isTrollStoreJITLess() else {
+                throw "This experimental JIT-less build requires TrollStore on iOS 16.0–16.6.1."
+            }
+            guard !appInfo.is32bit else {
+                throw "32-bit apps require JIT and cannot run in this build."
+            }
+            guard !appInfo.isJITNeeded && forceJIT != true else {
+                throw "This app is configured to launch with JIT. Disable Launch with JIT in its settings. Apps that require JIT cannot run in this build."
+            }
+        }
         
         if uiContainers.isEmpty {
             let newName = NSUUID().uuidString
@@ -233,7 +245,7 @@ class LCAppModel: ObservableObject, Hashable {
         let currentDataFolder = containerFolderName ?? uiSelectedContainer?.folderName
         
         let classicMode = appInfo.defaultClassicMode
-        let multitask = classicMode == 0 ? (multitask ?? shouldLaunchInMultitaskMode) : false
+        let multitask = classicMode == 0 && !LCSharedUtils.isTrollStoreJITLessBuild() ? (multitask ?? shouldLaunchInMultitaskMode) : false
         
         if MultitaskManager.isMultitasking() || multitask,
            let currentDataFolder {
@@ -434,6 +446,10 @@ class LCAppModel: ObservableObject, Hashable {
             }
         }
         
+        // The TrollStore build also signs global tweaks when no per-app folder exists.
+        if LCSharedUtils.isTrollStoreJITLess() {
+            try await LCUtils.signTweaks(tweakFolderUrl: LCPath.tweakPath, force: force)
+        }
         // sign its tweak
         guard let tweakFolder = appInfo.tweakFolder else {
             return

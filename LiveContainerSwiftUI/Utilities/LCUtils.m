@@ -90,6 +90,34 @@
 
 #pragma mark Code signing
 
+// Loaded only in the separate TrollStore build. The ordinary build keeps ZSign.
++ (NSProgress *)signWithTrollStoreURLs:(NSArray<NSURL *> *)urls completionHandler:(void (^)(BOOL, NSError *))completionHandler {
+    NSProgress *progress = [NSProgress progressWithTotalUnitCount:urls.count];
+    static dispatch_queue_t queue;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ queue = dispatch_queue_create("livecontainer.trollstore.sign", DISPATCH_QUEUE_SERIAL); });
+    dispatch_async(queue, ^{
+        NSString *library = [NSUserDefaults.lcMainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/LCTrollStoreSigner.dylib"];
+        void *handle = dlopen(library.fileSystemRepresentation, RTLD_NOW | RTLD_LOCAL);
+        BOOL (*signPath)(NSString *, NSError **) = handle ? dlsym(handle, "LCTSSignPath") : NULL;
+        NSError *error = nil;
+        BOOL success = signPath != NULL;
+        if (!success) {
+            const char *details = dlerror();
+            error = [NSError errorWithDomain:@"LCTrollStoreSigner" code:1 userInfo:@{NSLocalizedDescriptionKey:
+                [NSString stringWithFormat:@"Could not load TrollStore signer: %s", details ?: "missing entry point"]}];
+        }
+        for (NSURL *url in urls) {
+            if (!success) break;
+            success = signPath(url.path, &error);
+            progress.completedUnitCount++;
+        }
+        // Keep the library loaded: OpenSSL and ObjC classes must stay alive.
+        dispatch_async(dispatch_get_main_queue(), ^{ completionHandler(success, error); });
+    });
+    return progress;
+}
+
 
 + (void)loadStoreFrameworksWithError2:(NSError **)error {
     // too lazy to use dispatch_once
@@ -128,6 +156,8 @@
 }
 
 + (NSProgress *)signAppBundleWithZSign:(NSURL *)path completionHandler:(void (^)(BOOL success, NSError *error))completionHandler {
+    if (LCSharedUtils.isTrollStoreJITLess)
+        return [self signWithTrollStoreURLs:@[path] completionHandler:completionHandler];
     NSError *error;
 
     // use zsign as our signer~
@@ -147,6 +177,8 @@
 }
 
 + (NSProgress *)signFilesWithZSignWithURLs:(NSArray<NSURL*>*)urls completionHandler:(void (^)(BOOL success, NSError *error))completionHandler {
+    if (LCSharedUtils.isTrollStoreJITLess)
+        return [self signWithTrollStoreURLs:urls completionHandler:completionHandler];
     NSError *error;
     [self loadStoreFrameworksWithError2:&error];
     if (error) {

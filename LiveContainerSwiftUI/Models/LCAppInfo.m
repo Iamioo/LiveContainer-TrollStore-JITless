@@ -360,7 +360,7 @@
         [self save];
     }
 
-    if (!LCSharedUtils.certificatePassword || self.is32bit || self.dontSign) {
+    if (!LCSharedUtils.canLaunchWithoutJIT || self.is32bit || (self.dontSign && !LCSharedUtils.isTrollStoreJITLess)) {
         [NSUserDefaults.standardUserDefaults removeObjectForKey:@"SigningInProgress"];
         completetionHandler(YES, nil);
         return;
@@ -378,7 +378,7 @@
         }
     }
     
-    if (!LCUtils.certificateData) {
+    if (!LCSharedUtils.isTrollStoreJITLess && !LCUtils.certificateData) {
         [NSUserDefaults.standardUserDefaults removeObjectForKey:@"SigningInProgress"];
         completetionHandler(NO, @"lc.signer.noCertificateFoundErr");
         return;

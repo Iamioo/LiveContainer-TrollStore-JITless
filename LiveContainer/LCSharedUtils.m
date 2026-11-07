@@ -118,6 +118,28 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
     return appGroupPath;
 }
 
++ (BOOL)isTrollStoreJITLessBuild {
+    return [(lcMainBundle ?: NSBundle.mainBundle).infoDictionary[@"LCTrollStoreJITLess"] boolValue];
+}
+
++ (BOOL)isTrollStoreJITLess {
+    if (![self isTrollStoreJITLessBuild]) return NO;
+    NSOperatingSystemVersion version = NSProcessInfo.processInfo.operatingSystemVersion;
+    // First experimental target: iOS 16.0 through 16.6.1 only.
+    if (version.majorVersion != 16 || version.minorVersion > 6 ||
+        (version.minorVersion == 6 && version.patchVersion > 1)) return NO;
+    NSString *path = (lcMainBundle ?: NSBundle.mainBundle).bundlePath;
+    // LiveProcess has its own bundle inside the host app.
+    if ([path.pathExtension isEqualToString:@"appex"])
+        path = path.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent;
+    NSString *marker = [path.stringByDeletingLastPathComponent stringByAppendingPathComponent:@"_TrollStore"];
+    return access(marker.fileSystemRepresentation, F_OK) == 0;
+}
+
++ (BOOL)canLaunchWithoutJIT {
+    return self.certificatePassword != nil || self.isTrollStoreJITLess;
+}
+
 + (NSString *)certificatePassword {
     NSUserDefaults* nud = NSUserDefaults.lcSharedDefaults ?: NSUserDefaults.standardUserDefaults;
     return [nud objectForKey:@"LCCertificatePassword"];
@@ -134,7 +156,9 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
         raise(SIGKILL);
     };
     
-    if (!self.certificatePassword) {
+    if (!self.canLaunchWithoutJIT) {
+        // This variant must never silently fall back to the Magnifier JIT URL.
+        if (self.isTrollStoreJITLessBuild) return NO;
         NSString *urlScheme = nil;
         NSString *tsPath = [NSString stringWithFormat:@"%@/../_TrollStore", NSBundle.mainBundle.bundlePath];
         if (!access(tsPath.UTF8String, F_OK)) {
