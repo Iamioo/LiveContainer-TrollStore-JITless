@@ -11,6 +11,20 @@
 
 Crowdin Project: [![Crowdin](https://badges.crowdin.net/livecontainer/localized.svg)](https://crowdin.com/project/livecontainer) &nbsp;| &nbsp; Documentation:[livecontainer.github.io](https://livecontainer.github.io/docs/intro)
 
+# LiveContainer TS – experimentelle Variante ohne JIT
+
+Diese GitHub-Kopie enthält einen zusätzlichen Signierer für TrollStore auf
+**iOS 16.0–16.6.1**. **Auf einem iPhone noch nicht getestet.**
+
+- [Testversion herunterladen (ZIP mit TIPA)](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42349603407/artifacts/13565230983)
+- [Installation, Grenzen und Quellcode-Hinweise](TrollStoreJITLess/README.md)
+- [Erfolgreicher Xcode-Build](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42349603407)
+
+Die TIPA verwendet dieselbe Bundle-ID wie LiveContainer. Vor der Installation
+die Daten einer vorhandenen Installation sichern. Apps, die selbst JIT brauchen,
+und 32-Bit-Apps werden nicht unterstützt. Die ursprüngliche Projektbeschreibung
+folgt unten.
+
 # LiveContainer
 
 - LiveContainer is an app launcher (not emulator or hypervisor) that allows you to run iOS apps inside it.

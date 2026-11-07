@@ -45,6 +45,15 @@ python3 TrollStoreJITLess/package.py \
 
 ## Technischer Stand und Prüfung am Gerät
 
+Der [Build vom 7. November 2026](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42349603407)
+hat die App und den neuen Signierer erfolgreich kompiliert und verpackt.
+Zusätzlich wurden die fertige ZIP-Struktur, die gesetzten Berechtigungen,
+die eingebettete OpenSSL-Abhängigkeit und die Signierer-Datei geprüft.
+Gerätetest: **noch nicht ausgeführt**.
+
+SHA-256 der erstellten TIPA:
+`e95cea52d71f3f4886a5603be6d0e1e470c1fd801a1cc071decacc1c5098172b`.
+
 LiveContainer-Basis: `9108ae624ea001f7d7696d48407f890b48fa2653`.
 Die normale Variante behält ihren bisherigen Signier- und Startweg. Erst der
 Verpackungsschritt setzt `LCTrollStoreJITLess` und fügt den Signierer hinzu.
