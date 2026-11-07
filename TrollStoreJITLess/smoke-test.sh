@@ -12,7 +12,7 @@ common=(-arch arm64 -isysroot "$(xcrun --sdk macosx --show-sdk-path)" -I"$choma"
 for file in "$choma/"*.c "$source_dir/coretrust_bug.c" TrollStoreJITLess/Signer.m TrollStoreJITLess/smoke-main.m; do
     xcrun --sdk macosx clang "${common[@]}" -fobjc-arc -include libkern/OSByteOrder.h -c "$file" -o "$work/$(basename "$file").o"
 done
-xcrun --sdk macosx clang++ "${common[@]}" -std=c++17 -fobjc-arc \
+xcrun --sdk macosx clang++ -IZSign -IZSign/common "${common[@]}" -std=c++17 -fobjc-arc \
     ZSign/zsign.mm ZSign/Utils.mm ZSign/*.cpp ZSign/common/*.cpp "$work/"*.o \
     -framework Foundation -framework Security -framework OpenSSL -lz \
     -Wl,-rpath,"$framework_dir" -o "$work/smoke"

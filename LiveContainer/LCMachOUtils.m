@@ -550,12 +550,13 @@ NSString *LCCodeSignatureValidationError(const char* path) {
         }
         
         fchecklv_t checkInfo = {0};
-        char     messageBuffer[512];
+        char     messageBuffer[512] = {0};
         messageBuffer[0]                = '\0';
         checkInfo.lv_error_message_size = sizeof(messageBuffer);
         checkInfo.lv_error_message      = messageBuffer;
         checkInfo.lv_file_start= sliceOffset;
         int checkLVresult = fcntl(fd, F_CHECK_LV, &checkInfo);
+        messageBuffer[sizeof(messageBuffer) - 1] = '\0';
         
         if (checkLVresult == 0) {
             failure = nil;
