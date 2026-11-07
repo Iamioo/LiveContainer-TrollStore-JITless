@@ -21,6 +21,10 @@ keinen JIT-Aufruf und kein `apple-magnifier://`-URL-Schema.
 
 ## Build und Installation
 
+Die eigenständige Nextcloud-Variante wird als Hauptinstanz behandelt. Ihr eigener
+Start-Link `nextcloudlc://` darf das Pluszeichen und die Importfunktionen nicht
+wie bei einer zusätzlichen LiveContainer-Instanz ausblenden.
+
 1. Auf GitHub unter **Actions → TrollStore JIT-less (experimental)** den Build
    öffnen oder den Workflow auf dem Branch `trollstore-jitless` starten.
 2. Nach erfolgreichem Build das Artefakt herunterladen und das ZIP entpacken.

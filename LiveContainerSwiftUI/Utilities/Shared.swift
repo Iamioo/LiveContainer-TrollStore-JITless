@@ -97,7 +97,9 @@ class SharedModel: ObservableObject {
     public static let keychainAccessGroupCount = 128
     
     func updateMultiLCStatus() {
-        if LCUtils.appUrlScheme()?.lowercased() != "livecontainer" {
+        // The standalone TrollStore variant has its own URL scheme, but owns
+        // its apps and must retain primary-instance import/management controls.
+        if !LCSharedUtils.isTrollStoreJITLessBuild() && LCUtils.appUrlScheme()?.lowercased() != "livecontainer" {
             multiLCStatus = 2
         } else {
             multiLCStatus = 0
