@@ -55,14 +55,18 @@ python3 TrollStoreJITLess/package.py \
 
 ## Technischer Stand und Prüfung am Gerät
 
-Der [Build vom 7. November 2026](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42349603407)
-hat die App und den neuen Signierer erfolgreich kompiliert und verpackt.
-Zusätzlich wurden die fertige ZIP-Struktur, die gesetzten Berechtigungen,
-die eingebettete OpenSSL-Abhängigkeit und die Signierer-Datei geprüft.
-Gerätetest: **noch nicht ausgeführt**.
+Der [neue Build vom 7. November 2026](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42350420397)
+hat die App samt Signierer erfolgreich kompiliert und verpackt. Die tatsächliche
+TIPA wurde auf Namen, Versionsdaten, eigene Identität, Dateien-App-Zugriff und
+Container-/Signierberechtigungen geprüft. Das kompilierte Icon wurde aus der TIPA
+entnommen und visuell mit der Nutzervorlage verglichen.
 
-SHA-256 der erstellten TIPA:
-`e95cea52d71f3f4886a5603be6d0e1e470c1fd801a1cc071decacc1c5098172b`.
+Gerätetest der Fehlerbehebung: **noch nicht ausgeführt**. Der gemeldete Absturz
+ist deshalb noch nicht nachweislich behoben. Bei einem erneuten Fehler bitte den
+vollständigen Fehlertext und gegebenenfalls `Nextcloud-Diagnose.txt` bereitstellen.
+
+SHA-256 der neuen TIPA:
+`532d5eb959db6a7058c858431a7dbed6756b86589fe4dc4db14eb80112014755`.
 
 LiveContainer-Basis: `9108ae624ea001f7d7696d48407f890b48fa2653`.
 Die normale Variante behält ihren bisherigen Signier- und Startweg. Erst der

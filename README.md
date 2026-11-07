@@ -11,19 +11,20 @@
 
 Crowdin Project: [![Crowdin](https://badges.crowdin.net/livecontainer/localized.svg)](https://crowdin.com/project/livecontainer) &nbsp;| &nbsp; Documentation:[livecontainer.github.io](https://livecontainer.github.io/docs/intro)
 
-# LiveContainer TS – experimentelle Variante ohne JIT
+# Nextcloud – LiveContainer mit eigenem Namen und Icon
 
-Diese GitHub-Kopie enthält einen zusätzlichen Signierer für TrollStore auf
-**iOS 16.0–16.6.1**. **Auf einem iPhone noch nicht getestet.**
+Experimentelle TrollStore-Variante für **iOS 15.0–16.6.1** mit App-ID
+`it.twsweb.Nextcloud`, Version `7.0.7`, Build `0` und dem vom Nutzer gelieferten Icon.
+Es handelt sich weiterhin um LiveContainer, nicht um den Nextcloud-Client.
 
-- [Testversion herunterladen (ZIP mit TIPA)](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42349603407/artifacts/13565230983)
-- [Installation, Grenzen und Quellcode-Hinweise](TrollStoreJITLess/README.md)
-- [Erfolgreicher Xcode-Build](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42349603407)
+- [Neue Testversion herunterladen (ZIP mit TIPA)](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42350420397/artifacts/13565811215)
+- [Installation und Grenzen](TrollStoreJITLess/README.md)
+- [Erfolgreicher Build und Paketprüfung](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42350420397)
 
-Die TIPA verwendet dieselbe Bundle-ID wie LiveContainer. Vor der Installation
-die Daten einer vorhandenen Installation sichern. Apps, die selbst JIT brauchen,
-und 32-Bit-Apps werden nicht unterstützt. Die ursprüngliche Projektbeschreibung
-folgt unten.
+App-ID, Start-Link, App-Gruppe und Schlüsselbund-Gruppen sind vom normalen
+LiveContainer getrennt. Die Daten der vorherigen Version werden nicht automatisch
+übernommen. Container-Zuordnung und temporäre Signierdateien wurden überarbeitet.
+**Die Behebung des gemeldeten Absturzes ist auf einem iPhone noch nicht bestätigt.**
 
 # LiveContainer
 
