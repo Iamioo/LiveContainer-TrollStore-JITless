@@ -17,9 +17,9 @@ Experimentelle TrollStore-Variante für **iOS 15.0–16.6.1** mit App-ID
 `it.twsweb.Nextcloud`, Version `7.0.7`, Build `0` und dem vom Nutzer gelieferten Icon.
 Es handelt sich weiterhin um LiveContainer, nicht um den Nextcloud-Client.
 
-- [Neue Testversion herunterladen (ZIP mit TIPA)](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42350934470/artifacts/13566010588)
+- [Neue Testversion herunterladen (ZIP mit TIPA)](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42351994773/artifacts/13565749218)
 - [Installation und Grenzen](TrollStoreJITLess/README.md)
-- [Erfolgreicher Build und Paketprüfung](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42350934470)
+- [Erfolgreicher Build und Paketprüfung](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42351994773)
 
 App-ID, Start-Link, App-Gruppe und Schlüsselbund-Gruppen sind vom normalen
 LiveContainer getrennt. Die Daten der vorherigen Version werden nicht automatisch

@@ -59,7 +59,7 @@ python3 TrollStoreJITLess/package.py \
 
 ## Technischer Stand und Prüfung am Gerät
 
-Der [neue Build vom 7. November 2026](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42350934470)
+Der [neue Build vom 7. November 2026](https://github.com/Iamioo/LiveContainer-TrollStore-JITless/actions/runs/42351994773)
 hat die App samt Signierer erfolgreich kompiliert und verpackt. Die tatsächliche
 TIPA wurde auf Namen, Versionsdaten, eigene Identität, Dateien-App-Zugriff und
 Container-/Signierberechtigungen geprüft. Das kompilierte Icon wurde aus der TIPA
@@ -70,7 +70,7 @@ ist deshalb noch nicht nachweislich behoben. Bei einem erneuten Fehler bitte den
 vollständigen Fehlertext und gegebenenfalls `Nextcloud-Diagnose.txt` bereitstellen.
 
 SHA-256 der neuen TIPA:
-`2dd239a4d666bbe4986a868ac9037d09af786807be7ce0c8eb18fb245e7920b1`.
+`44520855d6990c622dea96b01eb1d36b0a7777c40f6feacab510f6b219a2afe3`.
 
 LiveContainer-Basis: `9108ae624ea001f7d7696d48407f890b48fa2653`.
 Die normale Variante behält ihren bisherigen Signier- und Startweg. Erst der
@@ -82,6 +82,30 @@ Lupe noch ein JIT-Helfer aufgehen. Danach eine App mit eingebetteten Frameworks
 und optional einem eigenen Tweak prüfen. 32-Bit-Apps und „Launch with JIT“ müssen
 eine verständliche Fehlermeldung liefern. Diese Gerätetests wurden bei der
 Erstellung nicht ausgeführt.
+
+## Überarbeitung des Signierers
+
+Die Ad-hoc-Signierung verwendet nun die mitgelieferte ZSign-Implementierung.
+Direkte Aufrufe privater Security-Signierfunktionen wurden entfernt. Die
+Ad-hoc-Funktion gibt ihre Dateimappings wieder frei; ein Zugriff außerhalb
+leerer Entitlement-Daten wurde abgesichert. Vor den kritischen Phasen wird
+`Nextcloud-Diagnose.txt` gespeichert, damit auch nach einem Prozessabbruch der
+letzte Schritt sichtbar bleibt.
+
+Bei einer Ablehnung nach erfolgreichem Signieren zeigt die Variante den
+Systemaufruf, errno und – falls vorhanden – den Kernel-Fehlertext an. Sie weist
+dabei nicht mehr auf ein persönliches Zertifikat hin und akzeptiert die
+fehlgeschlagene Signatur auch nicht einfach als gültig.
+
+Im Mac-Build wurden eine kleine ARM64-iOS-App und eine iOS-Bibliothek jeweils
+zweimal durch den tatsächlichen ZSign-/CoreTrust-Weg signiert. Alle SHA-256-
+Code-Seiten wurden anschließend mit den fertigen Dateibytes verglichen.
+Diese Tests waren erfolgreich. Die Akzeptanz durch den iOS-Kernel und der
+App-Start auf dem Gerät sind dadurch noch nicht nachgewiesen.
+
+Nach dem Update zunächst bei einer eigenen Test-App unter Einstellungen
+„Signieren erzwingen“ ausführen. Falls die Signatur weiter abgelehnt wird,
+den vollständigen neuen Fehlertext oder `Nextcloud-Diagnose.txt` prüfen.
 
 ## Quellen und Lizenzen
 
