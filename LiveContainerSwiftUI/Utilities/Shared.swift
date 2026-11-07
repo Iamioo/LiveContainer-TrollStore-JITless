@@ -23,6 +23,9 @@ struct LCPath {
     
     public static let lcGroupDocPath = {
         let fm = FileManager()
+        if LCSharedUtils.isTrollStoreJITLessBuild() {
+            return LCSharedUtils.appGroupPath()?.appendingPathComponent("LiveContainer") ?? docPath
+        }
         // it seems that Apple don't want to create one for us, so we just borrow our Store's
         if let appGroupPathUrl = LCSharedUtils.appGroupPath() {
             return appGroupPathUrl.appendingPathComponent("LiveContainer")

@@ -50,22 +50,38 @@ static BOOL signFile(NSString *path, NSError **error) {
 
     // A new inode avoids reusing the kernel's cached signature for the old file.
     // Work beside the original so the final rename stays on the same filesystem.
-    NSString *temporary = [path.stringByDeletingLastPathComponent stringByAppendingPathComponent:
-        [@".lcts-" stringByAppendingString:NSUUID.UUID.UUIDString]];
-    MemoryStream *output = file_stream_init_from_path(temporary.fileSystemRepresentation, 0, 0,
+    NSString *template = [path.stringByDeletingLastPathComponent stringByAppendingPathComponent:@".lcts-XXXXXX"];
+    char *temporaryPath = strdup(template.fileSystemRepresentation);
+    int fd = mkstemp(temporaryPath);
+    if (fd < 0) {
+        int savedError = errno;
+        free(temporaryPath);
+        return fail(error, path, savedError, [NSString stringWithFormat:@"Cannot create signing file: %s", strerror(savedError)]);
+    }
+    NSString *temporary = [NSString stringWithUTF8String:temporaryPath];
+    free(temporaryPath);
+    MemoryStream *output = file_stream_init_from_file_descriptor(fd, 0, 0,
         FILE_STREAM_FLAG_WRITABLE | FILE_STREAM_FLAG_AUTO_EXPAND);
+    close(fd);
     int result = -1;
+    NSString *stage = @"copy ARM64 slice";
     if (output) {
         MemoryStream *input = macho_get_stream(slice);
         result = memory_stream_copy_data(input, 0, output, 0, memory_stream_get_size(input));
         memory_stream_free(output);
     }
     fat_free(fat);
-    if (result == 0) result = codesign_sign_adhoc(temporary.fileSystemRepresentation, false, @{});
-    if (result == 0) result = apply_coretrust_bypass(temporary.fileSystemRepresentation);
+    if (result == 0) {
+        stage = @"ad-hoc signing";
+        result = codesign_sign_adhoc(temporary.fileSystemRepresentation, false, @{});
+    }
+    if (result == 0) {
+        stage = @"CoreTrust signing";
+        result = apply_coretrust_bypass(temporary.fileSystemRepresentation);
+    }
     if (result != 0) {
         [fm removeItemAtPath:temporary error:nil];
-        return fail(error, path, result, @"CoreTrust signing failed; original file preserved");
+        return fail(error, path, result, [NSString stringWithFormat:@"%@ failed; original file preserved. Path: %@", stage, path]);
     }
     mode_t mode = [attributes[NSFilePosixPermissions] unsignedShortValue];
     if (chmod(temporary.fileSystemRepresentation, mode) != 0 ||

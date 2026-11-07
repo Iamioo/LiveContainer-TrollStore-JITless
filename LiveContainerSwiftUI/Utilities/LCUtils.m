@@ -112,6 +112,13 @@
             success = signPath(url.path, &error);
             progress.completedUnitCount++;
         }
+        if (!success) {
+            NSURL *documents = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+            NSString *report = [NSString stringWithFormat:@"Date: %@\nSystem: %@\nBundle: %@\nSigner: %@\nError: %@\n",
+                NSDate.date, NSProcessInfo.processInfo.operatingSystemVersionString,
+                NSUserDefaults.lcMainBundle.bundlePath, library, error];
+            [report writeToURL:[documents URLByAppendingPathComponent:@"Nextcloud-Diagnose.txt"] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+        }
         // Keep the library loaded: OpenSSL and ObjC classes must stay alive.
         dispatch_async(dispatch_get_main_queue(), ^{ completionHandler(success, error); });
     });

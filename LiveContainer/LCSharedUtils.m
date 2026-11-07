@@ -21,7 +21,7 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
         void* taskSelf = SecTaskCreateFromSelf(NULL);
         CFErrorRef error = NULL;
         CFTypeRef cfans = SecTaskCopyValueForEntitlement(taskSelf, CFSTR("com.apple.developer.team-identifier"), &error);
-        if(CFGetTypeID(cfans) == CFStringGetTypeID()) {
+        if(cfans && CFGetTypeID(cfans) == CFStringGetTypeID()) {
             ans = (__bridge NSString*)cfans;
         }
         CFRelease(taskSelf);
@@ -57,6 +57,10 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
     static dispatch_once_t once;
     static NSString *appGroupID = @"Unknown";
     dispatch_once(&once, ^{
+        if ([self isTrollStoreJITLessBuild]) {
+            appGroupID = @"group.it.twsweb.Nextcloud";
+            return;
+        }
         NSArray* possibleAppGroups = @[
             [@"group.com.SideStore.SideStore." stringByAppendingString:[self teamIdentifier]],
             [@"group.com.rileytestut.AltStore." stringByAppendingString:[self teamIdentifier]]
@@ -125,9 +129,9 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
 + (BOOL)isTrollStoreJITLess {
     if (![self isTrollStoreJITLessBuild]) return NO;
     NSOperatingSystemVersion version = NSProcessInfo.processInfo.operatingSystemVersion;
-    // First experimental target: iOS 16.0 through 16.6.1 only.
-    if (version.majorVersion != 16 || version.minorVersion > 6 ||
-        (version.minorVersion == 6 && version.patchVersion > 1)) return NO;
+    if (version.majorVersion < 15 || version.majorVersion > 16 ||
+        (version.majorVersion == 16 && (version.minorVersion > 6 ||
+        (version.minorVersion == 6 && version.patchVersion > 1)))) return NO;
     NSString *path = (lcMainBundle ?: NSBundle.mainBundle).bundlePath;
     // LiveProcess has its own bundle inside the host app.
     if ([path.pathExtension isEqualToString:@"appex"])
@@ -423,6 +427,7 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
 }
 
 + (NSArray<NSString*>*)lcUnorderedUrlSchemes {
+    if ([self isTrollStoreJITLessBuild]) return @[@"nextcloudlc"];
     NSArray<NSString *> *defaultSchemes = @[@"livecontainer", @"livecontainer2", @"livecontainer3"];
     return defaultSchemes;
 }

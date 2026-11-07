@@ -236,11 +236,17 @@ int LCPatchExecSlice(const char *path, struct mach_header_64 *header, bool doInj
 
 NSString *LCParseMachO(const char *path, bool readOnly, LCParseMachOCallback callback) {
     int fd = open(path, readOnly ? O_RDONLY : O_RDWR, (mode_t)readOnly ? 0400 : 0600);
+    if (fd < 0) return [NSString stringWithFormat:@"Failed to open %s: %s", path, strerror(errno)];
     struct stat s;
-    fstat(fd, &s);
+    if (fstat(fd, &s) != 0 || s.st_size < sizeof(uint32_t)) {
+        close(fd);
+        return [NSString stringWithFormat:@"Invalid or unreadable Mach-O file: %s", path];
+    }
     void *map = mmap(NULL, s.st_size, readOnly ? PROT_READ : (PROT_READ | PROT_WRITE), readOnly ? MAP_PRIVATE : MAP_SHARED, fd, 0);
     if (map == MAP_FAILED) {
-        return [NSString stringWithFormat:@"Failed to map %s: %s", path, strerror(errno)];
+        int savedError = errno;
+        close(fd);
+        return [NSString stringWithFormat:@"Failed to map %s: %s", path, strerror(savedError)];
     }
 
     uint32_t magic = *(uint32_t *)map;

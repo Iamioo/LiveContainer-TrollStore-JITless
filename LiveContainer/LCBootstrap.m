@@ -254,7 +254,7 @@ static NSString* invokeAppMain(NSString *selectedApp, NSString *selectedContaine
         sleep(100);
     }
     if (LCSharedUtils.isTrollStoreJITLessBuild && !LCSharedUtils.isTrollStoreJITLess) {
-        return @"This experimental JIT-less build requires TrollStore on iOS 16.0–16.6.1.";
+        return @"This experimental JIT-less build requires TrollStore on iOS 15.0–16.6.1.";
     }
     if (!LCSharedUtils.canLaunchWithoutJIT && !isSideStore) {
 #if !TARGET_OS_SIMULATOR
@@ -810,6 +810,13 @@ int LiveContainerMain(int argc, char *argv[]) {
         }
         NSString *appError = invokeAppMain(selectedApp, selectedContainer, argc, argv);
         if (appError) {
+            if (LCSharedUtils.isTrollStoreJITLessBuild) {
+                NSString *report = [NSString stringWithFormat:@"Date: %@\nSystem: %@\nBundle: %@\nApp: %@\nError: %@\n",
+                    NSDate.date, NSProcessInfo.processInfo.operatingSystemVersionString,
+                    lcMainBundle.bundlePath, selectedApp, appError];
+                NSString *home = [NSString stringWithUTF8String:getenv("LC_HOME_PATH")];
+                [report writeToFile:[home stringByAppendingPathComponent:@"Documents/Nextcloud-Diagnose.txt"] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            }
             if(isLiveProcess) {
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                     NSExtensionContext *context = [NSClassFromString(@"LiveProcessHandler") extensionContext];

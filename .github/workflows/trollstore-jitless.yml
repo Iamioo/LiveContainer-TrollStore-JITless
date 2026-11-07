@@ -18,14 +18,16 @@ jobs:
       - name: Archive
         run: |
           set -o pipefail
+          python3 TrollStoreJITLess/prepare-icon.py
           xcodebuild archive -project LiveContainer.xcodeproj -scheme LiveContainer \
             -archivePath "$RUNNER_TEMP/LiveContainer.xcarchive" -sdk iphoneos -arch arm64 \
             -configuration Release CODE_SIGNING_ALLOWED=NO
       - name: Package TrollStore variant
         run: |
           python3 TrollStoreJITLess/package.py "$RUNNER_TEMP/LiveContainer.xcarchive/Products/Applications/LiveContainer.app"
+          python3 TrollStoreJITLess/verify-package.py Nextcloud-LiveContainer-TrollStore.tipa
       - uses: actions/upload-artifact@v4
         with:
-          name: LiveContainer-TrollStore-JITless-experimental
-          path: LiveContainer-TrollStore-JITless.tipa
+          name: Nextcloud-LiveContainer-TrollStore-experimental
+          path: Nextcloud-LiveContainer-TrollStore.tipa
           if-no-files-found: error

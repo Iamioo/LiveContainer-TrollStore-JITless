@@ -37,6 +37,11 @@ def prepare_entitlements(bundle, executable, host):
         return item
 
     values = expand(values)
+    values["application-identifier"] = "AAAAA11111." + bundle_id
+    values["com.apple.private.security.container-required"] = bundle_id
+    values["com.apple.security.application-groups"] = ["group.it.twsweb.Nextcloud"]
+    values["keychain-access-groups"] = [value.replace("com.kdt.livecontainer.shared", "it.twsweb.Nextcloud.shared")
+                                       for value in values["keychain-access-groups"]]
     # Retain the data container. No dynamic-codesigning or debugger entitlement.
     values["com.apple.private.security.no-sandbox"] = True
     values["com.apple.private.security.storage.AppDataContainers"] = True
@@ -62,8 +67,21 @@ def main():
         info_path = app / "Info.plist"
         info = plistlib.loads(info_path.read_bytes())
         info["LCTrollStoreJITLess"] = True
-        info["CFBundleDisplayName"] = "LiveContainer TS"
-        info["MinimumOSVersion"] = "16.0"
+        info.update({
+            "CFBundleDisplayName": "Nextcloud",
+            "CFBundleIdentifier": "it.twsweb.Nextcloud",
+            "CFBundleName": "Nextcloud",
+            "CFBundleVersion": "0",
+            "CFBundleShortVersionString": "7.0.7",
+            "MinimumOSVersion": "15.0",
+            "UIFileSharingEnabled": True,
+            "LSSupportsOpeningDocumentsInPlace": True,
+            "LCKeychainGroupPrefix": "it.twsweb.Nextcloud.shared",
+            "CFBundleURLTypes": [{"CFBundleURLName": "it.twsweb.Nextcloud.launch",
+                                  "CFBundleURLSchemes": ["nextcloudlc"]}],
+            "LSApplicationQueriesSchemes": ["nextcloudlc"],
+        })
+        info.pop("CFBundleAlternateIcons", None)
         info_path.write_bytes(plistlib.dumps(info))
         subprocess.run(["bash", str(ROOT / "TrollStoreJITLess/build-signer.sh"),
                         str(app / "Frameworks")], cwd=ROOT, check=True)
@@ -72,7 +90,7 @@ def main():
         subprocess.run(["codesign", "--force", "--sign", "-",
                         str(app / "Frameworks/LCTrollStoreSigner.dylib")], check=True)
         prepare_entitlements(app, app / info["CFBundleExecutable"], True)
-        output = ROOT / "LiveContainer-TrollStore-JITless.tipa"
+        output = ROOT / "Nextcloud-LiveContainer-TrollStore.tipa"
         with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
             for path in sorted(payload.rglob("*")):
                 if path.is_file():

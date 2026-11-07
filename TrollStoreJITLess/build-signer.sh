@@ -14,7 +14,7 @@ choma="$dependencies/TrollStore/ChOma/src"
 framework_dir="$PWD/OpenSSL/Frameworks/OpenSSL.xcframework/ios-arm64"
 mkdir -p "$dependencies/include"
 ln -sfn "$framework_dir/OpenSSL.framework/Headers" "$dependencies/include/openssl"
-xcrun --sdk iphoneos clang -dynamiclib -arch arm64 -miphoneos-version-min=16.0 \
+xcrun --sdk iphoneos clang -dynamiclib -arch arm64 -miphoneos-version-min=15.0 \
     -isysroot "$(xcrun --sdk iphoneos --show-sdk-path)" \
     -fobjc-arc -fvisibility=hidden -Wno-deprecated-declarations \
     -include libkern/OSByteOrder.h -I"$choma" -I"$source_dir" -I"$dependencies/include" \

@@ -7,7 +7,7 @@ keinen JIT-Aufruf und kein `apple-magnifier://`-URL-Schema.
 
 ## Voraussetzungen und Grenzen
 
-- Erste Zielversion: **iOS 16.0 bis 16.6.1**, Installation mit TrollStore.
+- Erste Zielversion: **iOS 15.0 bis 16.6.1**, Installation mit TrollStore.
 - Nur entschlüsselte ARM64-Apps, die selbst kein JIT benötigen.
 - Kein Zertifikat aus SideStore/AltStore erforderlich.
 - Ein App-Start gleichzeitig; App-Erweiterungen werden beim Verpacken entfernt.
@@ -24,18 +24,28 @@ keinen JIT-Aufruf und kein `apple-magnifier://`-URL-Schema.
 1. Auf GitHub unter **Actions → TrollStore JIT-less (experimental)** den Build
    öffnen oder den Workflow auf dem Branch `trollstore-jitless` starten.
 2. Nach erfolgreichem Build das Artefakt herunterladen und das ZIP entpacken.
-3. `LiveContainer-TrollStore-JITless.tipa` mit TrollStore installieren.
-4. LiveContainer TS öffnen und eine entschlüsselte IPA importieren.
+3. `Nextcloud-LiveContainer-TrollStore.tipa` mit TrollStore installieren.
+4. Nextcloud öffnen und eine entschlüsselte IPA importieren.
 5. In den Einstellungen der importierten App „Launch with JIT“ ausschalten.
 6. Die App normal starten.
 
-Die Bundle-ID entspricht LiveContainer. Vor Installation über eine vorhandene
-Version deren Daten sichern. Ein Update kann die bestehende Installation ersetzen.
+Diese Variante heißt Nextcloud und verwendet `it.twsweb.Nextcloud`. Die
+URL `nextcloudlc://`, die App-Gruppe und die Schlüsselbund-Gruppen sind getrennt
+vom normalen LiveContainer. Bestehende Apps werden nicht automatisch übernommen.
+Es ist weiterhin LiveContainer, keine Nextcloud-Client-App. Das Icon stammt vom Nutzer.
+
+Bei einem Fehler liegt nach Möglichkeit `Nextcloud-Diagnose.txt` im
+App-Ordner in der Dateien-App. Die vorherige Version wurde mit einem Absturz
+und „failed to open“ gemeldet. Die genaue Ursache ist ohne Geräteprotokoll noch
+nicht bestätigt. Diese Überarbeitung setzt den Datencontainer ausdrücklich,
+vermeidet gemeinsame Datenbereiche und erstellt temporäre Signierdateien mit
+festen Dateirechten.
 
 Auf einem Mac lässt sich derselbe Build so erstellen:
 
 ```sh
 git submodule update --init --recursive
+python3 TrollStoreJITLess/prepare-icon.py
 xcodebuild archive -project LiveContainer.xcodeproj -scheme LiveContainer \
   -archivePath /tmp/LiveContainer.xcarchive -sdk iphoneos -arch arm64 \
   -configuration Release CODE_SIGNING_ALLOWED=NO

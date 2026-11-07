@@ -217,7 +217,7 @@ class LCAppModel: ObservableObject, Hashable {
 
         if LCSharedUtils.isTrollStoreJITLessBuild() {
             guard LCSharedUtils.isTrollStoreJITLess() else {
-                throw "This experimental JIT-less build requires TrollStore on iOS 16.0–16.6.1."
+                throw "This experimental JIT-less build requires TrollStore on iOS 15.0–16.6.1."
             }
             guard !appInfo.is32bit else {
                 throw "32-bit apps require JIT and cannot run in this build."
