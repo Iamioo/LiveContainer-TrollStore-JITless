@@ -26,6 +26,8 @@ jobs:
         run: |
           python3 TrollStoreJITLess/package.py "$RUNNER_TEMP/LiveContainer.xcarchive/Products/Applications/LiveContainer.app"
           python3 TrollStoreJITLess/verify-package.py Nextcloud-LiveContainer-TrollStore.tipa
+      - name: Exercise ZSign and CoreTrust on iOS Mach-O fixtures
+        run: bash TrollStoreJITLess/smoke-test.sh
       - uses: actions/upload-artifact@v4
         with:
           name: Nextcloud-LiveContainer-TrollStore-experimental

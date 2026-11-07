@@ -523,10 +523,10 @@ NSString* getEntitlementXML(struct mach_header_64* header, void** entitlementXML
     return ans;
 }
 
-bool checkCodeSignature(const char* path) {
+NSString *LCCodeSignatureValidationError(const char* path) {
     __block bool checked = false;
-    __block bool ans = false;
-    LCParseMachO(path, true, ^(const char *path, struct mach_header_64 *header, int fd, void *filePtr) {
+    __block NSString *failure = @"No ARM64 signature was found.";
+    NSString *parseError = LCParseMachO(path, true, ^(const char *path, struct mach_header_64 *header, int fd, void *filePtr) {
         if(checked || header->cputype != CPU_TYPE_ARM64) {
             return;
         }
@@ -534,20 +534,22 @@ bool checkCodeSignature(const char* path) {
         
         struct code_signature_command* codeSignatureCommand = findSignatureCommand(header);
         if(!codeSignatureCommand) {
+            failure = @"Missing LC_CODE_SIGNATURE command.";
             return;
         }
         off_t sliceOffset = (void*)header - filePtr;
-        fsignatures_t siginfo;
+        fsignatures_t siginfo = {0};
         siginfo.fs_file_start = sliceOffset;
         siginfo.fs_blob_start = (void*)(long)(codeSignatureCommand->dataoff);
         siginfo.fs_blob_size  = codeSignatureCommand->datasize;
         int addFileSigsReault = fcntl(fd, F_ADDFILESIGS_RETURN, &siginfo);
         if ( addFileSigsReault == -1 ) {
-            ans = false;
+            int savedError = errno;
+            failure = [NSString stringWithFormat:@"F_ADDFILESIGS_RETURN failed: %s (errno %d)", strerror(savedError), savedError];
             return;
         }
         
-        fchecklv_t checkInfo;
+        fchecklv_t checkInfo = {0};
         char     messageBuffer[512];
         messageBuffer[0]                = '\0';
         checkInfo.lv_error_message_size = sizeof(messageBuffer);
@@ -556,14 +558,19 @@ bool checkCodeSignature(const char* path) {
         int checkLVresult = fcntl(fd, F_CHECK_LV, &checkInfo);
         
         if (checkLVresult == 0) {
-            ans = true;
+            failure = nil;
             return;
         } else {
-            ans = false;
+            int savedError = errno;
+            failure = [NSString stringWithFormat:@"F_CHECK_LV failed: %s (errno %d). Kernel: %s", strerror(savedError), savedError, messageBuffer];
             return;
         }
     });
-    return ans;
+    return parseError ?: failure;
+}
+
+bool checkCodeSignature(const char* path) {
+    return LCCodeSignatureValidationError(path) == nil;
 }
 
 NSString* getExecutableEntitlementXML(NSString* path) {

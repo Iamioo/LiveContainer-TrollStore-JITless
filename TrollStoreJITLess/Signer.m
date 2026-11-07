@@ -10,8 +10,17 @@
 #include "MachO.h"
 #include "Host.h"
 #include "FileStream.h"
-#include "codesign.h"
+#include <dlfcn.h>
+#import "../ZSign/zsigner.h"
 #include "coretrust_bug.h"
+
+static void checkpoint(NSString *path, NSString *stage) {
+    NSURL *documents = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+    NSString *logPath = [documents URLByAppendingPathComponent:@"Nextcloud-Diagnose.txt"].path;
+    NSData *data = [[NSString stringWithFormat:@"Date: %@\nPhase: %@\nFile: %@\n", NSDate.date, stage, path] dataUsingEncoding:NSUTF8StringEncoding];
+    int fd = open(logPath.fileSystemRepresentation, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd >= 0) { write(fd, data.bytes, data.length); fsync(fd); close(fd); }
+}
 
 static BOOL fail(NSError **error, NSString *path, NSInteger code, NSString *reason) {
     if (error) *error = [NSError errorWithDomain:@"LCTrollStoreSigner" code:code
@@ -72,11 +81,21 @@ static BOOL signFile(NSString *path, NSError **error) {
     }
     fat_free(fat);
     if (result == 0) {
-        stage = @"ad-hoc signing";
-        result = codesign_sign_adhoc(temporary.fileSystemRepresentation, false, @{});
+        stage = @"ZSign ad-hoc signing";
+        checkpoint(path, stage);
+        // Use the bundled signer instead of unresolved private Security symbols.
+        Class signer = NSClassFromString(@"ZSigner");
+        if (!signer) {
+            NSString *library = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks/ZSign.dylib"];
+            dlopen(library.fileSystemRepresentation, RTLD_NOW | RTLD_LOCAL);
+            signer = NSClassFromString(@"ZSigner");
+        }
+        NSData *entitlements = [NSPropertyListSerialization dataWithPropertyList:@{} format:NSPropertyListXMLFormat_v1_0 options:0 error:nil];
+        result = signer && [signer adhocSignMachOAtPath:temporary bundleId:@"it.twsweb.Nextcloud.guest" entitlementData:entitlements] ? 0 : -2;
     }
     if (result == 0) {
         stage = @"CoreTrust signing";
+        checkpoint(path, stage);
         result = apply_coretrust_bypass(temporary.fileSystemRepresentation);
     }
     if (result != 0) {
@@ -90,6 +109,7 @@ static BOOL signFile(NSString *path, NSError **error) {
         [fm removeItemAtPath:temporary error:nil];
         return fail(error, path, savedError, @"Cannot replace signed file");
     }
+    checkpoint(path, @"Signed successfully");
     return YES;
 }
 

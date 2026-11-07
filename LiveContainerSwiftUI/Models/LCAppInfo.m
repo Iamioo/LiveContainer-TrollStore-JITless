@@ -392,11 +392,18 @@
                     if(!success) {
                         completetionHandler(NO, error.localizedDescription);
                     } else {
-                        bool signatureValid = checkCodeSignature(executablePath.UTF8String);
-                        if(signatureValid) {
+                        NSString *validationError = LCCodeSignatureValidationError(executablePath.UTF8String);
+                        if(!validationError) {
                             completetionHandler(YES, [error localizedDescription]);
                         } else {
-                            completetionHandler(NO, @"lc.signer.latestCertificateInvalidErr");
+                            if (LCSharedUtils.isTrollStoreJITLess) {
+                                NSString *details = [NSString stringWithFormat:@"iOS hat die TrollStore-Signatur abgelehnt.\n%@\nDatei: %@", validationError, executablePath];
+                                NSURL *documents = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+                                [details writeToURL:[documents URLByAppendingPathComponent:@"Nextcloud-Diagnose.txt"] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+                                completetionHandler(NO, details);
+                            } else {
+                                completetionHandler(NO, @"lc.signer.latestCertificateInvalidErr");
+                            }
                         }
                     }
                     

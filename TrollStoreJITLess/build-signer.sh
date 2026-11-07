@@ -19,9 +19,8 @@ xcrun --sdk iphoneos clang -dynamiclib -arch arm64 -miphoneos-version-min=15.0 \
     -fobjc-arc -fvisibility=hidden -Wno-deprecated-declarations \
     -include libkern/OSByteOrder.h -I"$choma" -I"$source_dir" -I"$dependencies/include" \
     -F"$framework_dir" -framework Foundation -framework Security -framework OpenSSL \
-    -Wl,-U,_SecStaticCodeCreateWithPathAndAttributes -Wl,-U,_SecCodeCopySigningInformation \
     -Wl,-install_name,@rpath/LCTrollStoreSigner.dylib \
-    TrollStoreJITLess/Signer.m "$source_dir/codesign.m" "$source_dir/coretrust_bug.c" "$choma/"*.c \
+    TrollStoreJITLess/Signer.m "$source_dir/coretrust_bug.c" "$choma/"*.c \
     -o "$destination/LCTrollStoreSigner.dylib"
 # Include the exact upstream sources and licenses with every build artifact.
 mkdir -p "$destination/../TrollStoreSignerSources"

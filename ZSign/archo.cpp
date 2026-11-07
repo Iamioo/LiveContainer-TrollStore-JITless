@@ -372,7 +372,7 @@ bool ZArchO::BuildCodeSignature(ZSignAsset* pSignAsset,
 		}
 	}
 
-	if (NULL != strstr(strEntitlementsSlot.data() + 8, "<key>get-task-allow</key>")) {
+    if (strEntitlementsSlot.size() > 8 && NULL != strstr(strEntitlementsSlot.data() + 8, "<key>get-task-allow</key>")) {
 		// TODO: Check if get-task-allow is actually set to true
 		uExecSegFlags |= CS_EXECSEG_MAIN_BINARY | CS_EXECSEG_ALLOW_UNSIGNED;
 	}

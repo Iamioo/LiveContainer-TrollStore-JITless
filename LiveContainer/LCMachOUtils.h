@@ -18,3 +18,4 @@ struct mach_header_64 *LCGetLoadedImageHeader(int i0, const char* name);
 NSString* getEntitlementXML(struct mach_header_64* header, void** entitlementXMLPtrOut);
 NSString* getExecutableEntitlementXML(NSString* path);
 bool checkCodeSignature(const char* path);
+NSString *LCCodeSignatureValidationError(const char* path);
